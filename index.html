@@ -7,337 +7,316 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Market Mayhem</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
-  :root {
-    --bg: #0f1117;
-    --surface: #1a1d2e;
-    --surface2: #252840;
-    --accent: #00d4aa;
-    --accent2: #7c3aed;
-    --profit: #00d4aa;
-    --loss: #ef4444;
-    --text: #e2e8f0;
-    --subtext: #94a3b8;
-    --tile-size: 52px;
-    --gap: 4px;
-    --radius: 12px;
-  }
+:root {
+  --bg: #0f1117;
+  --surface: #1a1d2e;
+  --surface2: #252840;
+  --accent: #00d4aa;
+  --accent2: #7c3aed;
+  --profit: #00d4aa;
+  --loss: #ef4444;
+  --text: #e2e8f0;
+  --subtext: #94a3b8;
+  --tile-size: 52px;
+  --gap: 4px;
+  --radius: 12px;
+}
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    overflow: hidden;
-    touch-action: none;
-    user-select: none;
-    -webkit-user-select: none;
-  }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
 
-  #app {
-    width: 100%;
-    max-width: 420px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 16px 12px;
-    min-height: 100vh;
-  }
+#app {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 14px 12px;
+  min-height: 100vh;
+}
 
-  /* Header */
-  #header {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
-  }
+/* Header */
+#header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
 
-  #game-title {
-    font-size: 20px;
-    font-weight: 800;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    letter-spacing: -0.5px;
-  }
+#game-title {
+  font-size: 20px;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.5px;
+}
 
-  #mute-btn {
-    background: var(--surface2);
-    border: none;
-    border-radius: 8px;
-    color: var(--text);
-    font-size: 18px;
-    width: 36px;
-    height: 36px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+#mute-btn {
+  background: var(--surface2);
+  border: none;
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 18px;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+}
 
-  /* Stats bar */
-  #stats {
-    width: 100%;
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 8px;
-    margin-bottom: 12px;
-  }
+/* Stats */
+#stats {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 8px;
+}
 
-  .stat-card {
-    background: var(--surface);
-    border-radius: 10px;
-    padding: 8px 10px;
-    display: flex;
-    flex-direction: column;
-  }
+.stat-card {
+  background: var(--surface);
+  border-radius: 10px;
+  padding: 7px 10px;
+  display: flex;
+  flex-direction: column;
+}
 
-  .stat-label {
-    font-size: 10px;
-    color: var(--subtext);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    font-weight: 600;
-  }
+.stat-label { font-size: 10px; color: var(--subtext); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+.stat-value { font-size: 17px; font-weight: 700; color: var(--text); line-height: 1.2; }
+#profit-value { color: var(--profit); }
+#multiplier-value { color: #f59e0b; }
 
-  .stat-value {
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--text);
-    line-height: 1.2;
-  }
+/* Power-up legend */
+#pu-legend {
+  width: 100%;
+  display: flex;
+  gap: 5px;
+  justify-content: center;
+  margin-bottom: 8px;
+}
 
-  #profit-value { color: var(--profit); }
-  #moves-value { color: var(--text); }
-  #multiplier-value { color: #f59e0b; }
+.pu-badge {
+  background: var(--surface);
+  border-radius: 7px;
+  padding: 3px 8px;
+  font-size: 10px;
+  color: var(--subtext);
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  white-space: nowrap;
+}
 
-  /* Timer bar */
-  #timer-wrap {
-    width: 100%;
-    height: 4px;
-    background: var(--surface2);
-    border-radius: 2px;
-    margin-bottom: 12px;
-    overflow: hidden;
-  }
+/* Timer bar */
+#timer-wrap {
+  width: 100%;
+  height: 4px;
+  background: var(--surface2);
+  border-radius: 2px;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
 
-  #timer-bar {
-    height: 100%;
-    background: linear-gradient(90deg, var(--accent), var(--accent2));
-    border-radius: 2px;
-    transition: width 1s linear, background-color 0.5s;
-    width: 100%;
-  }
+#timer-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  border-radius: 2px;
+  transition: width 1s linear;
+  width: 100%;
+}
 
-  #timer-bar.warning { background: linear-gradient(90deg, #f59e0b, var(--loss)); }
+#timer-bar.warning { background: linear-gradient(90deg, #f59e0b, var(--loss)); }
 
-  /* Board */
-  #board-wrap {
-    position: relative;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-  }
+/* Board */
+#board-wrap {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
 
-  #board {
-    display: grid;
-    grid-template-columns: repeat(7, var(--tile-size));
-    grid-template-rows: repeat(7, var(--tile-size));
-    gap: var(--gap);
-    position: relative;
-    touch-action: none;
-  }
+#board {
+  display: grid;
+  grid-template-columns: repeat(7, var(--tile-size));
+  grid-template-rows: repeat(7, var(--tile-size));
+  gap: var(--gap);
+  position: relative;
+  touch-action: none;
+}
 
-  .tile {
-    width: var(--tile-size);
-    height: var(--tile-size);
-    border-radius: var(--radius);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 26px;
-    cursor: pointer;
-    position: relative;
-    transition: transform 0.15s ease, opacity 0.2s ease;
-    will-change: transform;
-    background: var(--surface);
-    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-    -webkit-tap-highlight-color: transparent;
-  }
+.tile {
+  width: var(--tile-size);
+  height: var(--tile-size);
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  cursor: pointer;
+  background: var(--surface);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+  /* NO default transition — managed in JS */
+}
 
-  .tile.selected {
-    background: var(--surface2);
-    box-shadow: 0 0 0 2px var(--accent), 0 4px 12px rgba(0,212,170,0.3);
-    transform: scale(1.1);
-    z-index: 2;
-  }
+.tile.selected {
+  box-shadow: 0 0 0 2.5px var(--accent), 0 4px 14px rgba(0,212,170,0.35);
+  transform: scale(1.1);
+  z-index: 2;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
 
-  .tile.matched {
-    animation: matchPop 0.35s ease forwards;
-  }
+/* Power-up glow */
+.tile.is-powerup {
+  animation: puGlow 1.6s ease-in-out infinite;
+}
 
-  .tile.falling {
-    animation: fallIn 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards;
-  }
+@keyframes puGlow {
+  0%, 100% { box-shadow: 0 0 8px 2px rgba(255,200,50,0.45), 0 2px 6px rgba(0,0,0,0.3); }
+  50%       { box-shadow: 0 0 22px 6px rgba(255,180,0,0.85), 0 2px 6px rgba(0,0,0,0.3); }
+}
 
-  .tile.swapping {
-    z-index: 3;
-    transition: transform 0.18s cubic-bezier(0.34,1.2,0.64,1);
-  }
+/* Animations */
+.tile.matched {
+  animation: matchPop 0.32s ease forwards;
+  pointer-events: none;
+}
 
-  .tile.hint {
-    animation: hintPulse 0.6s ease infinite;
-  }
+.tile.blasted {
+  animation: blastPop 0.42s ease forwards;
+  pointer-events: none;
+}
 
-  @keyframes matchPop {
-    0%   { transform: scale(1); opacity: 1; }
-    40%  { transform: scale(1.25); opacity: 0.8; }
-    100% { transform: scale(0); opacity: 0; }
-  }
+.tile.falling {
+  animation: fallIn 0.34s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
 
-  @keyframes fallIn {
-    0%   { transform: translateY(-60px) scale(0.7); opacity: 0; }
-    100% { transform: translateY(0) scale(1); opacity: 1; }
-  }
+.tile.hint {
+  animation: hintPulse 0.65s ease infinite;
+}
 
-  @keyframes hintPulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.08); box-shadow: 0 0 0 3px var(--accent); }
-  }
+@keyframes matchPop {
+  0%   { transform: scale(1);    opacity: 1; }
+  45%  { transform: scale(1.28); opacity: 0.8; }
+  100% { transform: scale(0);    opacity: 0; }
+}
 
-  /* Score popups */
-  #popups-layer {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    pointer-events: none;
-    overflow: hidden;
-    z-index: 10;
-  }
+@keyframes blastPop {
+  0%   { transform: scale(1);    opacity: 1; filter: brightness(1); }
+  25%  { transform: scale(1.45); opacity: 1; filter: brightness(2.5); }
+  100% { transform: scale(0);    opacity: 0; filter: brightness(1); }
+}
 
-  .score-popup {
-    position: absolute;
-    font-size: 18px;
-    font-weight: 800;
-    color: var(--profit);
-    text-shadow: 0 2px 8px rgba(0,212,170,0.5);
-    animation: floatUp 1s ease forwards;
-    white-space: nowrap;
-    pointer-events: none;
-  }
+@keyframes fallIn {
+  0%   { transform: translateY(-72px) scale(0.65); opacity: 0; }
+  100% { transform: translateY(0)     scale(1);    opacity: 1; }
+}
 
-  .score-popup.big {
-    font-size: 26px;
-    color: #f59e0b;
-    text-shadow: 0 2px 12px rgba(245,158,11,0.6);
-  }
+@keyframes hintPulse {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.09); box-shadow: 0 0 0 3px var(--accent); }
+}
 
-  @keyframes floatUp {
-    0%   { transform: translateY(0) scale(0.8); opacity: 1; }
-    60%  { transform: translateY(-50px) scale(1.1); opacity: 1; }
-    100% { transform: translateY(-90px) scale(1); opacity: 0; }
-  }
+/* Score popups */
+#popups-layer {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 10;
+}
 
-  /* Game Over overlay */
-  #overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(15,17,23,0.92);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 100;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s;
-  }
+.score-popup {
+  position: absolute;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--profit);
+  text-shadow: 0 2px 8px rgba(0,212,170,0.5);
+  animation: floatUp 1s ease forwards;
+  white-space: nowrap;
+  pointer-events: none;
+  transform: translateX(-50%);
+}
 
-  #overlay.visible {
-    opacity: 1;
-    pointer-events: all;
-  }
+.score-popup.big   { font-size: 22px; color: #f59e0b; text-shadow: 0 2px 12px rgba(245,158,11,0.7); }
+.score-popup.blast { font-size: 21px; color: #ff6b35; text-shadow: 0 2px 14px rgba(255,107,53,0.7); }
 
-  #overlay-card {
-    background: var(--surface);
-    border-radius: 20px;
-    padding: 32px 28px;
-    text-align: center;
-    width: 280px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-    animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
-  }
+@keyframes floatUp {
+  0%   { transform: translateX(-50%) translateY(0)     scale(0.8); opacity: 1; }
+  60%  { transform: translateX(-50%) translateY(-48px) scale(1.1); opacity: 1; }
+  100% { transform: translateX(-50%) translateY(-88px) scale(1);   opacity: 0; }
+}
 
-  @keyframes popIn {
-    0%  { transform: scale(0.7); }
-    100%{ transform: scale(1); }
-  }
+/* Overlay */
+#overlay {
+  position: fixed; inset: 0;
+  background: rgba(15,17,23,0.92);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 100;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s;
+}
+#overlay.visible { opacity: 1; pointer-events: all; }
 
-  #overlay-title {
-    font-size: 28px;
-    font-weight: 800;
-    margin-bottom: 8px;
-  }
+#overlay-card {
+  background: var(--surface);
+  border-radius: 20px;
+  padding: 32px 28px;
+  text-align: center;
+  width: 280px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes popIn { 0% { transform: scale(0.7); } 100% { transform: scale(1); } }
 
-  #overlay-profit {
-    font-size: 40px;
-    font-weight: 900;
-    color: var(--profit);
-    margin: 12px 0;
-  }
+#overlay-title  { font-size: 28px; font-weight: 800; margin-bottom: 8px; }
+#overlay-profit { font-size: 40px; font-weight: 900; color: var(--profit); margin: 12px 0; }
+#overlay-detail { font-size: 14px; color: var(--subtext); margin-bottom: 24px; }
 
-  #overlay-detail {
-    font-size: 14px;
-    color: var(--subtext);
-    margin-bottom: 24px;
-  }
+#restart-btn {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border: none; border-radius: 12px;
+  color: #fff; font-size: 16px; font-weight: 700;
+  padding: 14px 32px; cursor: pointer; width: 100%;
+  transition: transform 0.1s;
+  -webkit-tap-highlight-color: transparent;
+}
+#restart-btn:active { transform: scale(0.97); }
 
-  #restart-btn {
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    border: none;
-    border-radius: 12px;
-    color: #fff;
-    font-size: 16px;
-    font-weight: 700;
-    padding: 14px 32px;
-    cursor: pointer;
-    width: 100%;
-    transition: transform 0.1s;
-  }
-
-  #restart-btn:active { transform: scale(0.97); }
-
-  /* Ticker strip */
-  #ticker {
-    width: 100%;
-    background: var(--surface);
-    border-radius: 10px;
-    padding: 6px 10px;
-    font-size: 11px;
-    color: var(--subtext);
-    overflow: hidden;
-    white-space: nowrap;
-    margin-top: 10px;
-  }
-
-  #ticker-text {
-    display: inline-block;
-    animation: tickerScroll 20s linear infinite;
-  }
-
-  @keyframes tickerScroll {
-    0%   { transform: translateX(100%); }
-    100% { transform: translateX(-100%); }
-  }
-
-  .tick-up   { color: var(--profit); }
-  .tick-down { color: var(--loss); }
+/* Ticker */
+#ticker {
+  width: 100%;
+  background: var(--surface);
+  border-radius: 10px;
+  padding: 6px 10px;
+  font-size: 11px; color: var(--subtext);
+  overflow: hidden; white-space: nowrap;
+  margin-top: 9px;
+}
+#ticker-text { display: inline-block; animation: tickerScroll 22s linear infinite; }
+@keyframes tickerScroll { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+.tick-up   { color: var(--profit); }
+.tick-down { color: var(--loss);   }
 </style>
 </head>
 <body>
@@ -362,18 +341,20 @@
     </div>
   </div>
 
-  <div id="timer-wrap">
-    <div id="timer-bar"></div>
+  <div id="pu-legend">
+    <div class="pu-badge">💣 Crash (3×3)</div>
+    <div class="pu-badge">⚡ Run (row)</div>
+    <div class="pu-badge">🚀 Rally (col)</div>
   </div>
+
+  <div id="timer-wrap"><div id="timer-bar"></div></div>
 
   <div id="board-wrap">
     <div id="board"></div>
     <div id="popups-layer"></div>
   </div>
 
-  <div id="ticker">
-    <span id="ticker-text"></span>
-  </div>
+  <div id="ticker"><span id="ticker-text"></span></div>
 </div>
 
 <div id="overlay">
@@ -386,60 +367,126 @@
 </div>
 
 <script>
-// ─── Config ───────────────────────────────────────────────────────────────────
-const GRID = 7;
-const TILE_SYMBOLS = ['💰','📈','📉','🪙','🏦'];
-const TILE_COLORS  = ['#1e3a2f','#1a2e1a','#2e1a1a','#2a2510','#1a2030'];
+// ─── Constants ────────────────────────────────────────────────────────────────
+const GRID       = 7;
 const MOVE_LIMIT = 30;
-const TIME_LIMIT = 120; // seconds
+const TIME_LIMIT = 120;
+
+// Tile types 0-4 are normal; 5-7 are power-ups
+const PU_BOMB      = 5;
+const PU_LIGHTNING = 6;
+const PU_ROCKET    = 7;
+
+const SYMBOLS = ['💰','📈','📉','🪙','🏦','💣','⚡','🚀'];
+const COLORS  = ['#1e3a2f','#1a2e1a','#2e1a1a','#2a2510','#1a2030',
+                 '#3d1a08','#08213d','#2a0d3d'];
 
 // ─── State ────────────────────────────────────────────────────────────────────
-let board = [];
-let score = 0;
-let movesLeft = MOVE_LIMIT;
-let combo = 0;
-let selectedCell = null;
-let busy = false;
-let muted = false;
-let timeLeft = TIME_LIMIT;
-let timerInterval = null;
-let hintTimeout = null;
-let hintCell = null;
+let board = [], score = 0, movesLeft = MOVE_LIMIT, combo = 0;
+let selectedCell = null, busy = false, muted = false;
+let timeLeft = TIME_LIMIT, timerInterval = null;
+let hintTimeout = null, hintCell = null;
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+const delay     = ms => new Promise(r => setTimeout(r, ms));
+const isPowerup = t  => t >= 5;
+
+function randTile()    { return Math.floor(Math.random() * 5); }
+
+function randNewTile() {                  // used when refilling after matches
+  const r = Math.random();
+  if (r < 0.035) return PU_BOMB;
+  if (r < 0.065) return PU_LIGHTNING;
+  if (r < 0.09)  return PU_ROCKET;
+  return Math.floor(Math.random() * 5);
+}
+
+function getTileStep() {
+  const ts  = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--tile-size'));
+  const gap = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--gap'));
+  return ts + gap;
+}
+
+function formatMoney(n) {
+  if (n >= 1e6) return (n/1e6).toFixed(1) + 'M';
+  if (n >= 1e3) return (n/1e3).toFixed(1) + 'k';
+  return String(n);
+}
 
 // ─── Audio ────────────────────────────────────────────────────────────────────
-const AudioCtx = window.AudioContext || window.webkitAudioContext;
-let ctx = null;
+// iOS Safari suspends AudioContext until a user gesture AND requires resume().
+// We also fire a silent 0-length buffer the first time to fully unlock it.
+const AC = window.AudioContext || window.webkitAudioContext;
+let actx = null, audioUnlocked = false;
 
 function ensureAudio() {
-  if (!ctx) ctx = new AudioCtx();
+  if (!actx) actx = new AC();
+  if (actx.state === 'suspended') actx.resume();
+  if (!audioUnlocked) {
+    audioUnlocked = true;
+    try {
+      const buf = actx.createBuffer(1, 1, 22050);
+      const src = actx.createBufferSource();
+      src.buffer = buf;
+      src.connect(actx.destination);
+      src.start(0);
+    } catch (_) {}
+  }
 }
 
-function playTone(freq, type, dur, vol = 0.18) {
-  if (muted || !ctx) return;
-  const osc = ctx.createOscillator();
-  const gain = ctx.createGain();
-  osc.connect(gain);
-  gain.connect(ctx.destination);
+function tone(freq, type, dur, vol = 0.15, when = 0) {
+  if (muted || !actx) return;
+  const t   = actx.currentTime + when;
+  const osc = actx.createOscillator();
+  const g   = actx.createGain();
+  osc.connect(g); g.connect(actx.destination);
   osc.type = type;
-  osc.frequency.setValueAtTime(freq, ctx.currentTime);
-  gain.gain.setValueAtTime(vol, ctx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
-  osc.start();
-  osc.stop(ctx.currentTime + dur);
+  osc.frequency.setValueAtTime(freq, t);
+  g.gain.setValueAtTime(vol, t);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  osc.start(t); osc.stop(t + dur + 0.05);
 }
 
-function sfxSelect()  { playTone(660, 'sine', 0.07); }
-function sfxSwap()    { playTone(440, 'triangle', 0.1); }
-function sfxMatch()   { playTone(880, 'sine', 0.15, 0.2); }
-function sfxCombo()   { playTone(1100,'sine', 0.2, 0.25); }
-function sfxFail()    { playTone(220, 'sawtooth', 0.12, 0.12); }
-function sfxGameOver(){ playTone(330, 'sine', 0.6, 0.2); }
+const sfxSelect  = () => tone(660, 'sine', 0.08);
+const sfxSwap    = () => tone(440, 'triangle', 0.1);
+const sfxFail    = () => tone(200, 'sawtooth', 0.14, 0.1);
 
-// ─── Board ────────────────────────────────────────────────────────────────────
-function randTile() {
-  return Math.floor(Math.random() * TILE_SYMBOLS.length);
+function sfxMatch() {
+  tone(523, 'sine', 0.13, 0.14);
+  tone(659, 'sine', 0.13, 0.10, 0.06);
 }
 
+function sfxCombo() {
+  tone(659, 'sine', 0.1,  0.18);
+  tone(784, 'sine', 0.14, 0.18, 0.07);
+  tone(1047,'sine', 0.18, 0.15, 0.14);
+}
+
+function sfxBomb() {
+  tone(70,  'sawtooth', 0.45, 0.3);
+  tone(110, 'sine',     0.28, 0.2,  0.06);
+  tone(200, 'triangle', 0.18, 0.12, 0.12);
+}
+
+function sfxLightning() {
+  tone(1400, 'sawtooth', 0.04, 0.22);
+  tone(900,  'sine',     0.14, 0.18, 0.04);
+  tone(1600, 'sine',     0.1,  0.14, 0.1);
+}
+
+function sfxRocket() {
+  [0, 0.07, 0.14, 0.21, 0.28].forEach((d, i) =>
+    tone(260 + i * 210, 'sine', 0.11, 0.16, d)
+  );
+}
+
+function sfxGameOver() {
+  tone(440, 'sine', 0.14, 0.18);
+  tone(330, 'sine', 0.18, 0.16, 0.16);
+  tone(220, 'sine', 0.5,  0.18, 0.32);
+}
+
+// ─── Board Init ───────────────────────────────────────────────────────────────
 function initBoard() {
   board = [];
   for (let r = 0; r < GRID; r++) {
@@ -458,28 +505,29 @@ function wouldMatch(r, c, t) {
   return false;
 }
 
-// ─── DOM ──────────────────────────────────────────────────────────────────────
-const boardEl = document.getElementById('board');
+// ─── DOM Helpers ──────────────────────────────────────────────────────────────
+const boardEl   = document.getElementById('board');
+const popupsEl  = document.getElementById('popups-layer');
+const profitEl  = document.getElementById('profit-value');
+const movesEl   = document.getElementById('moves-value');
+const mulEl     = document.getElementById('multiplier-value');
+const timerBar  = document.getElementById('timer-bar');
+const overlay   = document.getElementById('overlay');
 
 function buildGrid() {
   boardEl.innerHTML = '';
-  boardEl.style.gridTemplateColumns = `repeat(${GRID}, var(--tile-size))`;
-  boardEl.style.gridTemplateRows    = `repeat(${GRID}, var(--tile-size))`;
-  for (let r = 0; r < GRID; r++) {
-    for (let c = 0; c < GRID; c++) {
-      const tile = createTileEl(r, c);
-      boardEl.appendChild(tile);
-    }
-  }
+  for (let r = 0; r < GRID; r++)
+    for (let c = 0; c < GRID; c++)
+      boardEl.appendChild(makeTileEl(r, c));
 }
 
-function createTileEl(r, c) {
+function makeTileEl(r, c) {
+  const t  = board[r][c];
   const el = document.createElement('div');
-  el.className = 'tile';
-  el.dataset.r = r;
-  el.dataset.c = c;
-  el.textContent = TILE_SYMBOLS[board[r][c]];
-  el.style.background = TILE_COLORS[board[r][c]];
+  el.className   = 'tile' + (isPowerup(t) ? ' is-powerup' : '');
+  el.dataset.r   = r; el.dataset.c = c;
+  el.textContent = SYMBOLS[t];
+  el.style.background = COLORS[t];
   return el;
 }
 
@@ -487,57 +535,268 @@ function getTileEl(r, c) {
   return boardEl.querySelector(`[data-r="${r}"][data-c="${c}"]`);
 }
 
+// Refresh a tile's content and fully clear any lingering animation state
 function refreshTile(r, c) {
   const el = getTileEl(r, c);
   if (!el) return;
   const t = board[r][c];
-  el.textContent = TILE_SYMBOLS[t];
-  el.style.background = TILE_COLORS[t];
-  el.className = 'tile';
+  el.style.transition = 'none';
+  el.style.transform  = '';
+  el.style.zIndex     = '';
+  el.textContent      = SYMBOLS[t];
+  el.style.background = COLORS[t];
+  el.className        = 'tile' + (isPowerup(t) ? ' is-powerup' : '');
 }
 
-// ─── Input ────────────────────────────────────────────────────────────────────
-let touchStart = null;
+// ─── Swap Animation ───────────────────────────────────────────────────────────
+function animateSwap(r1, c1, r2, c2) {
+  const e1 = getTileEl(r1, c1), e2 = getTileEl(r2, c2);
+  if (!e1 || !e2) return;
+  const step = getTileStep();
+  const dr = r2 - r1, dc = c2 - c1;
+
+  // Snap both tiles to exact origin first (clears any drag offset)
+  e1.style.transition = 'none'; e2.style.transition = 'none';
+  e1.style.transform  = 'translate(0px,0px)';
+  e2.style.transform  = 'translate(0px,0px)';
+  e1.style.zIndex     = '4'; e2.style.zIndex = '4';
+
+  // Force reflow so the browser registers the start position
+  void e1.offsetWidth;
+
+  const ease = 'cubic-bezier(0.34, 1.15, 0.64, 1)';
+  e1.style.transition = `transform 0.2s ${ease}`;
+  e2.style.transition = `transform 0.2s ${ease}`;
+
+  requestAnimationFrame(() => {
+    e1.style.transform = `translate(${dc*step}px,${dr*step}px)`;
+    e2.style.transform = `translate(${-dc*step}px,${-dr*step}px)`;
+  });
+}
+
+// ─── Match Detection ──────────────────────────────────────────────────────────
+function findMatches() {
+  const hit = new Set();
+
+  for (let r = 0; r < GRID; r++) {
+    let run = 1;
+    for (let c = 1; c <= GRID; c++) {
+      if (c < GRID && !isPowerup(board[r][c]) && board[r][c] === board[r][c-1]) {
+        run++;
+      } else {
+        if (run >= 3) for (let k = c-run; k < c; k++) hit.add(`${r},${k}`);
+        run = 1;
+      }
+    }
+  }
+
+  for (let c = 0; c < GRID; c++) {
+    let run = 1;
+    for (let r = 1; r <= GRID; r++) {
+      if (r < GRID && !isPowerup(board[r][c]) && board[r][c] === board[r-1][c]) {
+        run++;
+      } else {
+        if (run >= 3) for (let k = r-run; k < r; k++) hit.add(`${k},${c}`);
+        run = 1;
+      }
+    }
+  }
+
+  return [...hit].map(s => { const [r,c] = s.split(','); return {r:+r, c:+c}; });
+}
+
+// ─── Gravity + Refill ─────────────────────────────────────────────────────────
+function applyGravity() {
+  for (let c = 0; c < GRID; c++) {
+    let empty = GRID - 1;
+    for (let r = GRID - 1; r >= 0; r--) {
+      if (board[r][c] !== -1) {
+        if (empty !== r) { board[empty][c] = board[r][c]; board[r][c] = -1; }
+        empty--;
+      }
+    }
+  }
+}
+
+function refillBoard() {
+  const newCells = [];
+  for (let r = 0; r < GRID; r++)
+    for (let c = 0; c < GRID; c++)
+      if (board[r][c] === -1) { board[r][c] = randNewTile(); newCells.push({r, c}); }
+  return newCells;
+}
+
+// ─── Power-up Activation ─────────────────────────────────────────────────────
+async function activatePowerup(type, r, c) {
+  let cells = [];
+  if (type === PU_BOMB) {
+    sfxBomb();
+    for (let dr = -1; dr <= 1; dr++)
+      for (let dc = -1; dc <= 1; dc++) {
+        const nr = r+dr, nc = c+dc;
+        if (nr >= 0 && nr < GRID && nc >= 0 && nc < GRID) cells.push({r:nr, c:nc});
+      }
+  } else if (type === PU_LIGHTNING) {
+    sfxLightning();
+    for (let cc = 0; cc < GRID; cc++) cells.push({r, c: cc});
+  } else {
+    sfxRocket();
+    for (let rr = 0; rr < GRID; rr++) cells.push({r: rr, c});
+  }
+
+  cells.forEach(({r:cr, c:cc}) => {
+    getTileEl(cr, cc)?.classList.add('blasted');
+    board[cr][cc] = -1;
+  });
+
+  const pts = cells.length * 200 * Math.max(1, combo);
+  score += pts;
+  updateStats();
+  showPopup(cells, pts, 0, true);
+  await delay(440);
+
+  applyGravity();
+  const newCells = refillBoard();
+  buildGrid();
+  newCells.forEach(({r:nr, c:nc}) => getTileEl(nr, nc)?.classList.add('falling'));
+  await delay(360);
+
+  // Cascade
+  const next = findMatches();
+  if (next.length) { combo++; await processMatches(next); }
+}
+
+// ─── Match Processing ─────────────────────────────────────────────────────────
+async function processMatches(cells) {
+  combo++;
+  const mul = Math.min(combo, 8);
+  const pts = cells.length * 100 * mul;
+  score += pts;
+  updateStats();
+  updateMul(mul);
+  combo === 1 ? sfxMatch() : sfxCombo();
+  showPopup(cells, pts, mul, false);
+
+  cells.forEach(({r, c}) => {
+    getTileEl(r, c)?.classList.add('matched');
+    board[r][c] = -1;
+  });
+  await delay(340);
+
+  applyGravity();
+  const newCells = refillBoard();
+  buildGrid();
+  newCells.forEach(({r, c}) => getTileEl(r, c)?.classList.add('falling'));
+  await delay(360);
+
+  const next = findMatches();
+  if (next.length) await processMatches(next);
+}
+
+// ─── Score Popups ─────────────────────────────────────────────────────────────
+function showPopup(cells, pts, mul, isBlast) {
+  const step = getTileStep();
+  const ts   = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--tile-size'));
+  const cx   = cells.reduce((s,m) => s + m.c, 0) / cells.length;
+  const cy   = cells.reduce((s,m) => s + m.r, 0) / cells.length;
+
+  const el = document.createElement('div');
+  el.className = 'score-popup' + (isBlast ? ' blast' : mul >= 3 ? ' big' : '');
+  el.style.left = (cx * step + ts / 2) + 'px';
+  el.style.top  = (cy * step) + 'px';
+  el.textContent = isBlast          ? `💥 +$${formatMoney(pts)}`
+                 : mul >= 4         ? `+$${formatMoney(pts)} x${mul}🔥`
+                 : mul >= 2         ? `+$${formatMoney(pts)} COMBO!`
+                 :                    `+$${formatMoney(pts)}`;
+  popupsEl.appendChild(el);
+  el.addEventListener('animationend', () => el.remove());
+}
+
+// ─── UI ───────────────────────────────────────────────────────────────────────
+function updateStats() {
+  profitEl.textContent = '$' + formatMoney(score);
+  movesEl.textContent  = movesLeft;
+}
+
+function updateMul(m) {
+  mulEl.textContent = `x${m}`;
+  mulEl.style.color = m >= 4 ? '#ef4444' : m >= 2 ? '#f59e0b' : '#e2e8f0';
+}
+
+// ─── Input: live-drag + tap ───────────────────────────────────────────────────
+let drag = null; // { r, c, el, startX, startY, didDrag }
 
 boardEl.addEventListener('touchstart', e => {
   ensureAudio();
   if (busy) return;
-  const touch = e.touches[0];
-  touchStart = { x: touch.clientX, y: touch.clientY, target: e.target };
   e.preventDefault();
+  const touch = e.touches[0];
+  const el    = e.target.closest('.tile');
+  if (!el) return;
+  drag = { r: +el.dataset.r, c: +el.dataset.c, el,
+           startX: touch.clientX, startY: touch.clientY, didDrag: false };
+}, { passive: false });
+
+boardEl.addEventListener('touchmove', e => {
+  e.preventDefault();
+  if (busy || !drag) return;
+  const touch = e.touches[0];
+  const dx = touch.clientX - drag.startX;
+  const dy = touch.clientY - drag.startY;
+  if (Math.sqrt(dx*dx + dy*dy) < 5) return;
+
+  drag.didDrag = true;
+  const step = getTileStep();
+  let tx = 0, ty = 0;
+  if (Math.abs(dx) >= Math.abs(dy)) {
+    tx = Math.max(-step, Math.min(step, dx));
+  } else {
+    ty = Math.max(-step, Math.min(step, dy));
+  }
+  drag.el.style.transition = 'none';
+  drag.el.style.transform  = `translate(${tx}px,${ty}px) scale(1.07)`;
+  drag.el.style.zIndex     = '6';
 }, { passive: false });
 
 boardEl.addEventListener('touchend', e => {
-  if (busy || !touchStart) return;
-  const touch = e.changedTouches[0];
-  const dx = touch.clientX - touchStart.x;
-  const dy = touch.clientY - touchStart.y;
-  const dist = Math.sqrt(dx*dx + dy*dy);
-  const el = touchStart.target.closest('.tile');
-
-  if (!el) { touchStart = null; return; }
-  const r = +el.dataset.r, c = +el.dataset.c;
-
-  if (dist < 12) {
-    // Tap
-    handleTap(r, c);
-  } else {
-    // Swipe
-    clearHint();
-    let dr = 0, dc = 0;
-    if (Math.abs(dx) > Math.abs(dy)) { dc = dx > 0 ? 1 : -1; }
-    else { dr = dy > 0 ? 1 : -1; }
-    const nr = r + dr, nc = c + dc;
-    if (nr >= 0 && nr < GRID && nc >= 0 && nc < GRID) {
-      attemptSwap(r, c, nr, nc);
-    }
-  }
-  touchStart = null;
+  if (!drag) return;
   e.preventDefault();
+  const { r, c, el, startX, startY, didDrag } = drag;
+  const touch = e.changedTouches[0];
+  const dx    = touch.clientX - startX;
+  const dy    = touch.clientY - startY;
+  const dist  = Math.sqrt(dx*dx + dy*dy);
+
+  // Snap the dragged tile back cleanly (no animation needed — swap will take over)
+  el.style.transition = 'none';
+  el.style.transform  = '';
+  el.style.zIndex     = '';
+  drag = null;
+
+  if (!didDrag || dist < 12) {
+    handleTap(r, c);
+    return;
+  }
+
+  // Clear any tap selection
+  if (selectedCell) {
+    getTileEl(selectedCell.r, selectedCell.c)?.classList.remove('selected');
+    selectedCell = null;
+  }
+  clearHint();
+
+  let dr = 0, dc = 0;
+  if (Math.abs(dx) >= Math.abs(dy)) dc = dx > 0 ? 1 : -1;
+  else                               dr = dy > 0 ? 1 : -1;
+  const nr = r + dr, nc = c + dc;
+  if (nr >= 0 && nr < GRID && nc >= 0 && nc < GRID) attemptSwap(r, c, nr, nc);
 }, { passive: false });
 
-boardEl.addEventListener('touchmove', e => { e.preventDefault(); }, { passive: false });
+// Prevent page scroll
+boardEl.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
+document.addEventListener('touchmove',  e => e.preventDefault(), { passive: false });
 
+// Desktop support
 boardEl.addEventListener('click', e => {
   ensureAudio();
   const el = e.target.closest('.tile');
@@ -547,408 +806,169 @@ boardEl.addEventListener('click', e => {
 
 function handleTap(r, c) {
   clearHint();
-  if (selectedCell === null) {
+  if (!selectedCell) {
     selectedCell = { r, c };
-    getTileEl(r, c).classList.add('selected');
+    getTileEl(r, c)?.classList.add('selected');
     sfxSelect();
     scheduleHint();
-  } else {
-    const { r: sr, c: sc } = selectedCell;
-    getTileEl(sr, sc).classList.remove('selected');
-    selectedCell = null;
-
-    if (sr === r && sc === c) return; // same tile
-
-    if (Math.abs(sr - r) + Math.abs(sc - c) === 1) {
-      attemptSwap(sr, sc, r, c);
-    } else {
-      // Select new tile instead
-      selectedCell = { r, c };
-      getTileEl(r, c).classList.add('selected');
-      sfxSelect();
-      scheduleHint();
-    }
+    return;
   }
+
+  const { r: sr, c: sc } = selectedCell;
+  getTileEl(sr, sc)?.classList.remove('selected');
+  selectedCell = null;
+  if (sr === r && sc === c) return;
+
+  if (Math.abs(sr-r) + Math.abs(sc-c) === 1) {
+    attemptSwap(sr, sc, r, c);
+  } else {
+    selectedCell = { r, c };
+    getTileEl(r, c)?.classList.add('selected');
+    sfxSelect();
+    scheduleHint();
+  }
+}
+
+// ─── Swap Logic ───────────────────────────────────────────────────────────────
+function swapData(r1, c1, r2, c2) {
+  const t = board[r1][c1]; board[r1][c1] = board[r2][c2]; board[r2][c2] = t;
+}
+
+async function attemptSwap(r1, c1, r2, c2) {
+  if (movesLeft <= 0 || busy) return;
+  busy = true;
+  sfxSwap();
+
+  const t1 = board[r1][c1], t2 = board[r2][c2];
+  animateSwap(r1, c1, r2, c2);
+  await delay(215);
+  swapData(r1, c1, r2, c2);
+  refreshTile(r1, c1); refreshTile(r2, c2);
+
+  // Power-up: activate at its post-swap position
+  if (isPowerup(t1) || isPowerup(t2)) {
+    const [pType, pR, pC] = isPowerup(t1) ? [t1, r2, c2] : [t2, r1, c1];
+    movesLeft--; combo = 0; updateStats();
+    await activatePowerup(pType, pR, pC);
+    busy = false;
+    scheduleHint();
+    if (movesLeft <= 0) { await delay(400); endGame(); }
+    return;
+  }
+
+  const matches = findMatches();
+  if (!matches.length) {
+    sfxFail();
+    animateSwap(r1, c1, r2, c2);
+    await delay(215);
+    swapData(r1, c1, r2, c2);
+    refreshTile(r1, c1); refreshTile(r2, c2);
+    busy = false;
+    return;
+  }
+
+  movesLeft--; combo = 0; updateStats();
+  await processMatches(matches);
+  busy = false;
+  scheduleHint();
+  if (movesLeft <= 0) { await delay(400); endGame(); }
 }
 
 // ─── Hint ─────────────────────────────────────────────────────────────────────
-function scheduleHint() {
-  hintTimeout = setTimeout(showHint, 4000);
-}
+function scheduleHint() { hintTimeout = setTimeout(showHint, 4000); }
 
 function clearHint() {
   if (hintTimeout) { clearTimeout(hintTimeout); hintTimeout = null; }
-  if (hintCell) {
-    const el = getTileEl(hintCell.r, hintCell.c);
-    if (el) el.classList.remove('hint');
-    hintCell = null;
-  }
+  if (hintCell) { getTileEl(hintCell.r, hintCell.c)?.classList.remove('hint'); hintCell = null; }
 }
 
 function showHint() {
-  const move = findAnyMove();
-  if (!move) return;
-  hintCell = move;
-  const el = getTileEl(move.r, move.c);
-  if (el) el.classList.add('hint');
+  const m = findAnyMove(); if (!m) return;
+  hintCell = m; getTileEl(m.r, m.c)?.classList.add('hint');
 }
 
 function findAnyMove() {
   for (let r = 0; r < GRID; r++) {
     for (let c = 0; c < GRID; c++) {
-      if (c + 1 < GRID) {
-        swapCells(r, c, r, c+1);
-        const m = findMatches();
-        swapCells(r, c, r, c+1);
-        if (m.length) return { r, c };
-      }
-      if (r + 1 < GRID) {
-        swapCells(r, c, r+1, c);
-        const m = findMatches();
-        swapCells(r, c, r+1, c);
-        if (m.length) return { r, c };
-      }
+      if (c+1 < GRID) { swapData(r,c,r,c+1); const m=findMatches(); swapData(r,c,r,c+1); if (m.length) return {r,c}; }
+      if (r+1 < GRID) { swapData(r,c,r+1,c); const m=findMatches(); swapData(r,c,r+1,c); if (m.length) return {r,c}; }
     }
   }
   return null;
 }
 
-// ─── Swap Logic ───────────────────────────────────────────────────────────────
-function swapCells(r1, c1, r2, c2) {
-  const t = board[r1][c1];
-  board[r1][c1] = board[r2][c2];
-  board[r2][c2] = t;
-}
-
-async function attemptSwap(r1, c1, r2, c2) {
-  if (movesLeft <= 0) return;
-  busy = true;
-  sfxSwap();
-
-  animateSwap(r1, c1, r2, c2);
-  await delay(200);
-
-  swapCells(r1, c1, r2, c2);
-
-  const matches = findMatches();
-  if (matches.length === 0) {
-    // Invalid — swap back
-    swapCells(r1, c1, r2, c2);
-    animateSwap(r1, c1, r2, c2);
-    await delay(200);
-    sfxFail();
-    busy = false;
-    return;
-  }
-
-  movesLeft--;
-  combo = 0;
-  updateStats();
-
-  await processMatches(matches);
-
-  busy = false;
-  scheduleHint();
-
-  if (movesLeft <= 0) {
-    await delay(400);
-    endGame();
-  }
-}
-
-function animateSwap(r1, c1, r2, c2) {
-  const e1 = getTileEl(r1, c1);
-  const e2 = getTileEl(r2, c2);
-  if (!e1 || !e2) return;
-
-  const tileSize = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--tile-size'));
-  const gap = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--gap'));
-  const step = tileSize + gap;
-
-  const dc = c2 - c1, dr = r2 - r1;
-  e1.classList.add('swapping');
-  e2.classList.add('swapping');
-  e1.style.transform = `translate(${dc*step}px, ${dr*step}px)`;
-  e2.style.transform = `translate(${-dc*step}px, ${-dr*step}px)`;
-
-  setTimeout(() => {
-    // Swap DOM references
-    refreshTile(r1, c1);
-    refreshTile(r2, c2);
-  }, 200);
-}
-
-// ─── Match Detection ──────────────────────────────────────────────────────────
-function findMatches() {
-  const matched = new Set();
-
-  // Horizontal
-  for (let r = 0; r < GRID; r++) {
-    let run = 1;
-    for (let c = 1; c <= GRID; c++) {
-      if (c < GRID && board[r][c] === board[r][c-1]) {
-        run++;
-      } else {
-        if (run >= 3) {
-          for (let k = c - run; k < c; k++) matched.add(`${r},${k}`);
-        }
-        run = 1;
-      }
-    }
-  }
-
-  // Vertical
-  for (let c = 0; c < GRID; c++) {
-    let run = 1;
-    for (let r = 1; r <= GRID; r++) {
-      if (r < GRID && board[r][c] === board[r-1][c]) {
-        run++;
-      } else {
-        if (run >= 3) {
-          for (let k = r - run; k < r; k++) matched.add(`${k},${c}`);
-        }
-        run = 1;
-      }
-    }
-  }
-
-  return [...matched].map(s => { const [r,c] = s.split(','); return { r:+r, c:+c }; });
-}
-
-// ─── Match Processing ─────────────────────────────────────────────────────────
-async function processMatches(matches) {
-  while (matches.length > 0) {
-    combo++;
-    const mul = Math.min(combo, 8);
-    const pts = matches.length * 100 * mul;
-    score += pts;
-
-    updateStats();
-    updateMultiplierDisplay(mul);
-    showScorePopup(matches, pts, mul);
-
-    if (combo === 1) sfxMatch();
-    else sfxCombo();
-
-    // Animate matched tiles
-    matches.forEach(({ r, c }) => {
-      const el = getTileEl(r, c);
-      if (el) el.classList.add('matched');
-    });
-
-    await delay(350);
-
-    // Remove matched tiles (set to -1)
-    matches.forEach(({ r, c }) => { board[r][c] = -1; });
-
-    // Gravity: drop tiles down
-    for (let c = 0; c < GRID; c++) {
-      let empty = GRID - 1;
-      for (let r = GRID - 1; r >= 0; r--) {
-        if (board[r][c] !== -1) {
-          if (empty !== r) {
-            board[empty][c] = board[r][c];
-            board[r][c] = -1;
-          }
-          empty--;
-        }
-      }
-    }
-
-    // Fill empty from top
-    for (let c = 0; c < GRID; c++) {
-      for (let r = 0; r < GRID; r++) {
-        if (board[r][c] === -1) {
-          board[r][c] = randTile();
-        }
-      }
-    }
-
-    // Rebuild grid DOM
-    buildGrid();
-
-    // Animate new tiles falling in
-    for (let r = 0; r < GRID; r++) {
-      for (let c = 0; c < GRID; c++) {
-        const el = getTileEl(r, c);
-        if (el) el.classList.add('falling');
-      }
-    }
-
-    await delay(320);
-
-    // Remove falling class
-    for (let r = 0; r < GRID; r++) {
-      for (let c = 0; c < GRID; c++) {
-        const el = getTileEl(r, c);
-        if (el) el.classList.remove('falling');
-      }
-    }
-
-    matches = findMatches();
-  }
-}
-
-// ─── Score Popup ──────────────────────────────────────────────────────────────
-const popupsLayer = document.getElementById('popups-layer');
-
-function showScorePopup(matches, pts, mul) {
-  const cx = matches.reduce((s, m) => s + m.c, 0) / matches.length;
-  const cy = matches.reduce((s, m) => s + m.r, 0) / matches.length;
-
-  const tileSize = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--tile-size'));
-  const gap = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--gap'));
-  const step = tileSize + gap;
-
-  const x = cx * step + tileSize / 2;
-  const y = cy * step;
-
-  const el = document.createElement('div');
-  el.className = 'score-popup' + (mul >= 3 ? ' big' : '');
-  el.style.left = x + 'px';
-  el.style.top  = y + 'px';
-
-  if (mul >= 4) {
-    el.textContent = `+$${formatMoney(pts)} x${mul}🔥`;
-  } else if (mul >= 2) {
-    el.textContent = `+$${formatMoney(pts)} COMBO!`;
-  } else {
-    el.textContent = `+$${formatMoney(pts)}`;
-  }
-
-  popupsLayer.appendChild(el);
-  el.addEventListener('animationend', () => el.remove());
-}
-
-function formatMoney(n) {
-  if (n >= 1000) return (n/1000).toFixed(1) + 'k';
-  return n.toString();
-}
-
-// ─── UI Updates ───────────────────────────────────────────────────────────────
-const profitEl = document.getElementById('profit-value');
-const movesEl  = document.getElementById('moves-value');
-const mulEl    = document.getElementById('multiplier-value');
-
-function updateStats() {
-  profitEl.textContent = '$' + formatMoney(score);
-  movesEl.textContent  = movesLeft;
-}
-
-function updateMultiplierDisplay(mul) {
-  mulEl.textContent = `x${mul}`;
-  mulEl.style.color = mul >= 4 ? '#ef4444' : mul >= 2 ? '#f59e0b' : '#e2e8f0';
-}
-
 // ─── Timer ────────────────────────────────────────────────────────────────────
-const timerBar = document.getElementById('timer-bar');
-
 function startTimer() {
   timeLeft = TIME_LIMIT;
   timerBar.style.width = '100%';
   timerBar.classList.remove('warning');
-
+  if (timerInterval) clearInterval(timerInterval);
   timerInterval = setInterval(() => {
     timeLeft--;
-    const pct = (timeLeft / TIME_LIMIT * 100).toFixed(1);
-    timerBar.style.width = pct + '%';
+    timerBar.style.width = (timeLeft / TIME_LIMIT * 100).toFixed(1) + '%';
     if (timeLeft <= 30) timerBar.classList.add('warning');
-    if (timeLeft <= 0) {
-      clearInterval(timerInterval);
-      endGame();
-    }
+    if (timeLeft <= 0)  { clearInterval(timerInterval); endGame(); }
   }, 1000);
 }
 
 // ─── Game Over ────────────────────────────────────────────────────────────────
-const overlay = document.getElementById('overlay');
-const overlayProfit = document.getElementById('overlay-profit');
-const overlayDetail = document.getElementById('overlay-detail');
-
 function endGame() {
   clearInterval(timerInterval);
   sfxGameOver();
   busy = true;
-
-  overlayProfit.textContent = '$' + score.toLocaleString();
-  const rating = score > 20000 ? '🚀 Bull Run!' :
-                 score > 10000 ? '📈 Strong Buy!' :
-                 score > 5000  ? '📊 Solid Trade' :
-                 score > 1000  ? '🟡 Break Even' : '📉 Bear Market';
-  overlayDetail.textContent = `${rating} — ${MOVE_LIMIT - movesLeft} moves used`;
+  document.getElementById('overlay-profit').textContent = '$' + score.toLocaleString();
+  const rating = score > 20000 ? '🚀 Bull Run!'    : score > 10000 ? '📈 Strong Buy!'
+               : score > 5000  ? '📊 Solid Trade'  : score > 1000  ? '🟡 Break Even'
+                                                                     : '📉 Bear Market';
+  document.getElementById('overlay-detail').textContent =
+    `${rating} — ${MOVE_LIMIT - movesLeft} moves used`;
   overlay.classList.add('visible');
 }
 
 document.getElementById('restart-btn').addEventListener('click', () => {
-  overlay.classList.remove('visible');
-  startGame();
+  overlay.classList.remove('visible'); startGame();
 });
 
 // ─── Ticker ───────────────────────────────────────────────────────────────────
-const tickers = [
-  ['AAPL', 1], ['TSLA', -1], ['MSFT', 1], ['NVDA', 1],
-  ['AMZN', -1], ['GOOG', 1], ['META', 1], ['BTC', 1],
-  ['ETH', -1], ['SPX', 1], ['GOLD', 1], ['OIL', -1]
+const TICKERS = [
+  ['AAPL',1],['TSLA',-1],['MSFT',1],['NVDA',1],['AMZN',-1],['GOOG',1],
+  ['META',1],['BTC',1],['ETH',-1],['SPX',1],['GOLD',1],['OIL',-1]
 ];
 
 function buildTicker() {
-  const el = document.getElementById('ticker-text');
-  const parts = tickers.map(([sym, dir]) => {
-    const pct = (Math.random() * 4 + 0.1).toFixed(2);
-    const sign = dir > 0 ? '+' : '-';
-    const cls = dir > 0 ? 'tick-up' : 'tick-down';
-    return `<span class="${cls}">${sym} ${sign}${pct}%</span>`;
-  }).join('&nbsp;&nbsp;•&nbsp;&nbsp;');
-  el.innerHTML = parts + '&nbsp;&nbsp;•&nbsp;&nbsp;' + parts; // duplicate for seamless loop
+  const parts = TICKERS.map(([s,d]) => {
+    const pct = (Math.random()*4+0.1).toFixed(2);
+    return `<span class="${d>0?'tick-up':'tick-down'}">${s} ${d>0?'+':'-'}${pct}%</span>`;
+  }).join('&nbsp;•&nbsp;');
+  document.getElementById('ticker-text').innerHTML = parts + '&nbsp;•&nbsp;' + parts;
 }
 
-// ─── Tile Size Calc ───────────────────────────────────────────────────────────
+// ─── Layout ───────────────────────────────────────────────────────────────────
 function calcTileSize() {
-  const appW = Math.min(window.innerWidth, 420) - 24;
-  const size = Math.floor((appW - (GRID - 1) * 4) / GRID);
-  const clamped = Math.max(38, Math.min(size, 60));
-  document.documentElement.style.setProperty('--tile-size', clamped + 'px');
-  document.documentElement.style.setProperty('--gap', '4px');
+  const w    = Math.min(window.innerWidth, 420) - 24;
+  const size = Math.floor((w - (GRID-1) * 4) / GRID);
+  document.documentElement.style.setProperty('--tile-size', Math.max(36, Math.min(size, 58)) + 'px');
 }
 
 // ─── Start ────────────────────────────────────────────────────────────────────
 function startGame() {
-  score = 0;
-  movesLeft = MOVE_LIMIT;
-  combo = 0;
-  selectedCell = null;
-  busy = false;
+  score = 0; movesLeft = MOVE_LIMIT; combo = 0;
+  selectedCell = null; busy = false;
   clearHint();
-
   calcTileSize();
-  initBoard();
-  buildGrid();
-  updateStats();
-  updateMultiplierDisplay(1);
-  buildTicker();
-  startTimer();
+  initBoard(); buildGrid(); updateStats(); updateMul(1);
+  buildTicker(); startTimer();
 }
 
-// Mute toggle
 document.getElementById('mute-btn').addEventListener('click', () => {
   ensureAudio();
   muted = !muted;
   document.getElementById('mute-btn').textContent = muted ? '🔇' : '🔊';
 });
 
-window.addEventListener('resize', () => {
-  calcTileSize();
-  buildGrid();
-});
+window.addEventListener('resize', () => { calcTileSize(); buildGrid(); });
 
-// Prevent page scroll during play
-document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
-
-// Kick off
 startGame();
-
-// ─── Utils ────────────────────────────────────────────────────────────────────
-function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
 </script>
 </body>
 </html>
