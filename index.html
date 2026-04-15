@@ -398,7 +398,7 @@ const PU_BOMB      = 5;
 const PU_LIGHTNING = 6;
 const PU_ROCKET    = 7;
 
-const SYMBOLS = ['💰','📈','📉','🪙','🏦','💣','⚡','🚀'];
+const SYMBOLS = ['💰','📈','💵','🪙','🏦','💣','⚡','🚀'];
 const COLORS  = ['#1e3a2f','#1a2e1a','#2e1a1a','#2a2510','#1a2030',
                  '#3d1a08','#08213d','#2a0d3d'];
 
@@ -435,37 +435,39 @@ function formatMoney(n) {
 }
 
 // ─── Audio ────────────────────────────────────────────────────────────────────
-// iOS Safari: AudioContext starts suspended and resume() is async.
-// Strategy: unlock on ANY touch via document capture-phase listener so the
-// context is running well before touchend fires and a sound is needed.
-// tone() skips silently if context isn't running yet — first tap may be
-// silent on iOS but every tap after is audible.
+// iOS Safari: AudioContext always starts 'suspended'. resume() is async, so
+// the context may still be suspended when tone() fires in touchend.
+// Fix: call ensureAudio() inside tone() and schedule notes 80ms ahead —
+// notes queued while suspended play automatically when the context starts.
+// This avoids the "state !== running → skip" trap that caused total silence.
 const AC = window.AudioContext || window.webkitAudioContext;
 let actx = null;
 
 function ensureAudio() {
   if (!actx) actx = new AC();
-  // resume() is a no-op when already running, safe to call every time
   if (actx.state !== 'running') actx.resume();
 }
 
-// Fires in capture phase before any other handler — unlocks on the very
-// first touch anywhere on the page, not just on the board.
+// Unlock on any touch/click, capture phase fires before all other handlers
 document.addEventListener('touchstart', ensureAudio, { capture: true, passive: true });
 document.addEventListener('click',      ensureAudio, { capture: true });
 
 function tone(freq, type, dur, vol = 0.15, when = 0) {
-  // Guard: only play when context is truly running (handles iOS unlock lag)
-  if (muted || !actx || actx.state !== 'running') return;
-  const t   = actx.currentTime + Math.max(when, 0.015); // tiny future offset avoids past-scheduling on iOS
-  const osc = actx.createOscillator();
-  const g   = actx.createGain();
-  osc.connect(g); g.connect(actx.destination);
-  osc.type = type;
-  osc.frequency.setValueAtTime(freq, t);
-  g.gain.setValueAtTime(vol, t);
-  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-  osc.start(t); osc.stop(t + dur + 0.05);
+  if (muted) return;
+  ensureAudio(); // resume if needed; notes below will queue until running
+  try {
+    // Schedule 80ms ahead so the context has time to resume on iOS.
+    // Notes scheduled in the "future" while suspended play on resume.
+    const t   = actx.currentTime + when + 0.08;
+    const osc = actx.createOscillator();
+    const g   = actx.createGain();
+    osc.connect(g); g.connect(actx.destination);
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, t);
+    g.gain.setValueAtTime(vol, t);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    osc.start(t); osc.stop(t + dur + 0.05);
+  } catch(_) {}
 }
 
 const sfxSelect  = () => tone(660, 'sine', 0.08);
