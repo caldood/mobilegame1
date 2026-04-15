@@ -435,29 +435,29 @@ function formatMoney(n) {
 }
 
 // ─── Audio ────────────────────────────────────────────────────────────────────
-// iOS Safari suspends AudioContext until a user gesture AND requires resume().
-// We also fire a silent 0-length buffer the first time to fully unlock it.
+// iOS Safari: AudioContext starts suspended and resume() is async.
+// Strategy: unlock on ANY touch via document capture-phase listener so the
+// context is running well before touchend fires and a sound is needed.
+// tone() skips silently if context isn't running yet — first tap may be
+// silent on iOS but every tap after is audible.
 const AC = window.AudioContext || window.webkitAudioContext;
-let actx = null, audioUnlocked = false;
+let actx = null;
 
 function ensureAudio() {
   if (!actx) actx = new AC();
-  if (actx.state === 'suspended') actx.resume();
-  if (!audioUnlocked) {
-    audioUnlocked = true;
-    try {
-      const buf = actx.createBuffer(1, 1, 22050);
-      const src = actx.createBufferSource();
-      src.buffer = buf;
-      src.connect(actx.destination);
-      src.start(0);
-    } catch (_) {}
-  }
+  // resume() is a no-op when already running, safe to call every time
+  if (actx.state !== 'running') actx.resume();
 }
 
+// Fires in capture phase before any other handler — unlocks on the very
+// first touch anywhere on the page, not just on the board.
+document.addEventListener('touchstart', ensureAudio, { capture: true, passive: true });
+document.addEventListener('click',      ensureAudio, { capture: true });
+
 function tone(freq, type, dur, vol = 0.15, when = 0) {
-  if (muted || !actx) return;
-  const t   = actx.currentTime + when;
+  // Guard: only play when context is truly running (handles iOS unlock lag)
+  if (muted || !actx || actx.state !== 'running') return;
+  const t   = actx.currentTime + Math.max(when, 0.015); // tiny future offset avoids past-scheduling on iOS
   const osc = actx.createOscillator();
   const g   = actx.createGain();
   osc.connect(g); g.connect(actx.destination);
