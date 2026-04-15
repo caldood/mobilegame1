@@ -67,7 +67,7 @@ body {
   letter-spacing: -0.5px;
 }
 
-#mute-btn {
+#mute-btn, #reset-btn {
   background: var(--surface2);
   border: none;
   border-radius: 8px;
@@ -80,6 +80,24 @@ body {
   align-items: center;
   justify-content: center;
   -webkit-tap-highlight-color: transparent;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+#reset-btn.armed {
+  background: #7f1d1d;
+  box-shadow: 0 0 0 2px var(--loss);
+  animation: armPulse 0.5s ease infinite alternate;
+}
+
+@keyframes armPulse {
+  from { box-shadow: 0 0 0 2px var(--loss); }
+  to   { box-shadow: 0 0 0 4px #ef444480; }
+}
+
+#header-btns {
+  display: flex;
+  gap: 6px;
+  align-items: center;
 }
 
 /* Stats */
@@ -323,7 +341,10 @@ body {
 <div id="app">
   <div id="header">
     <div id="game-title">Market Mayhem</div>
-    <button id="mute-btn" aria-label="Toggle sound">🔊</button>
+    <div id="header-btns">
+      <button id="reset-btn" aria-label="Reset game">🔄</button>
+      <button id="mute-btn"  aria-label="Toggle sound">🔊</button>
+    </div>
   </div>
 
   <div id="stats">
@@ -964,6 +985,31 @@ document.getElementById('mute-btn').addEventListener('click', () => {
   ensureAudio();
   muted = !muted;
   document.getElementById('mute-btn').textContent = muted ? '🔇' : '🔊';
+});
+
+// Reset button: tap once to arm (turns red), tap again within 2 s to confirm reset
+let resetArmed = false, resetTimer = null;
+document.getElementById('reset-btn').addEventListener('click', () => {
+  ensureAudio();
+  if (!resetArmed) {
+    resetArmed = true;
+    const btn = document.getElementById('reset-btn');
+    btn.classList.add('armed');
+    btn.textContent = '❌';
+    resetTimer = setTimeout(() => {
+      resetArmed = false;
+      btn.classList.remove('armed');
+      btn.textContent = '🔄';
+    }, 2000);
+  } else {
+    clearTimeout(resetTimer);
+    resetArmed = false;
+    const btn = document.getElementById('reset-btn');
+    btn.classList.remove('armed');
+    btn.textContent = '🔄';
+    overlay.classList.remove('visible');
+    startGame();
+  }
 });
 
 window.addEventListener('resize', () => { calcTileSize(); buildGrid(); });
