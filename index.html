@@ -203,7 +203,9 @@ body {
   transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
-/* Power-up glow */
+/* CSS animation order matters: is-powerup first, then matched/blasted/falling
+   so those override puGlow when active. Once .falling is removed via JS after
+   the animation, puGlow resumes on power-up tiles. */
 .tile.is-powerup {
   animation: puGlow 1.6s ease-in-out infinite;
 }
@@ -213,7 +215,7 @@ body {
   50%       { box-shadow: 0 0 22px 6px rgba(255,180,0,0.85), 0 2px 6px rgba(0,0,0,0.3); }
 }
 
-/* Animations */
+/* Animations — defined after is-powerup so they win when combined */
 .tile.matched {
   animation: matchPop 0.32s ease forwards;
   pointer-events: none;
@@ -671,7 +673,10 @@ function mostCommonTile() {
 
 // ─── Power-up Activation ─────────────────────────────────────────────────────
 async function activatePowerup(type, r, c) {
-  let cells = [];
+  // Always clear + blast the power-up tile itself (Diamond never includes its
+  // own position in the pattern, so without this it stays on the board)
+  board[r][c] = -1;
+  let cells = [{r, c}];
   if (type === PU_BOMB) {
     sfxBomb();
     for (let dr = -1; dr <= 1; dr++)
@@ -710,6 +715,7 @@ async function activatePowerup(type, r, c) {
   buildGrid();
   newCells.forEach(({r:nr, c:nc}) => getTileEl(nr, nc)?.classList.add('falling'));
   await delay(360);
+  newCells.forEach(({r:nr, c:nc}) => getTileEl(nr, nc)?.classList.remove('falling'));
 
   // Cascade
   const next = findMatches();
@@ -738,6 +744,7 @@ async function processMatches(cells) {
   buildGrid();
   newCells.forEach(({r, c}) => getTileEl(r, c)?.classList.add('falling'));
   await delay(360);
+  newCells.forEach(({r, c}) => getTileEl(r, c)?.classList.remove('falling'));
 
   const next = findMatches();
   if (next.length) await processMatches(next);
@@ -854,6 +861,8 @@ async function activatePowerupCombo(t1, t2, r1, c1, r2, c2) {
   buildGrid();
   newCells.forEach(({r,c}) => getTileEl(r,c)?.classList.add('falling'));
   await delay(360);
+  newCells.forEach(({r,c}) => getTileEl(r,c)?.classList.remove('falling'));
+
   const next = findMatches();
   if (next.length) { combo++; await processMatches(next); }
 }
