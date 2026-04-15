@@ -366,6 +366,7 @@ body {
     <div class="pu-badge">💣 Crash (3×3)</div>
     <div class="pu-badge">⚡ Run (row)</div>
     <div class="pu-badge">🚀 Rally (col)</div>
+    <div class="pu-badge">💎 Squeeze</div>
   </div>
 
   <div id="timer-wrap"><div id="timer-bar"></div></div>
@@ -393,14 +394,15 @@ const GRID       = 7;
 const MOVE_LIMIT = 30;
 const TIME_LIMIT = 120;
 
-// Tile types 0-4 are normal; 5-7 are power-ups
+// Tile types 0-4 are normal; 5-8 are power-ups
 const PU_BOMB      = 5;
 const PU_LIGHTNING = 6;
 const PU_ROCKET    = 7;
+const PU_DIAMOND   = 8;
 
-const SYMBOLS = ['💰','📈','💵','🪙','🤑','💣','⚡','🚀'];
+const SYMBOLS = ['💰','📈','💵','🪙','🤑','💣','⚡','🚀','💎'];
 const COLORS  = ['#1e3a2f','#1a2e1a','#2e1a1a','#2a2510','#1a2030',
-                 '#3d1a08','#08213d','#2a0d3d'];
+                 '#3d1a08','#08213d','#2a0d3d','#0d2a2a'];
 
 // ─── State ────────────────────────────────────────────────────────────────────
 let board = [], score = 0, movesLeft = MOVE_LIMIT, combo = 0;
@@ -416,9 +418,10 @@ function randTile()    { return Math.floor(Math.random() * 5); }
 
 function randNewTile() {                  // used when refilling after matches
   const r = Math.random();
-  if (r < 0.035) return PU_BOMB;
-  if (r < 0.065) return PU_LIGHTNING;
-  if (r < 0.09)  return PU_ROCKET;
+  if (r < 0.03)  return PU_BOMB;
+  if (r < 0.055) return PU_LIGHTNING;
+  if (r < 0.075) return PU_ROCKET;
+  if (r < 0.10)  return PU_DIAMOND;
   return Math.floor(Math.random() * 5);
 }
 
@@ -501,6 +504,14 @@ function sfxRocket() {
   [0, 0.07, 0.14, 0.21, 0.28].forEach((d, i) =>
     tone(260 + i * 210, 'sine', 0.11, 0.16, d)
   );
+}
+
+function sfxDiamond() {
+  // Sparkling high arpeggio
+  [0, 0.06, 0.12, 0.18, 0.24].forEach((d, i) =>
+    tone(1000 + i * 350, 'sine', 0.14, 0.17, d)
+  );
+  tone(300, 'sine', 0.4, 0.12, 0.05); // low resonant thud underneath
 }
 
 function sfxGameOver() {
@@ -649,6 +660,15 @@ function refillBoard() {
   return newCells;
 }
 
+// Returns the normal tile type (0-4) with the highest count on the board
+function mostCommonTile() {
+  const counts = Array(5).fill(0);
+  for (let r = 0; r < GRID; r++)
+    for (let c = 0; c < GRID; c++)
+      if (!isPowerup(board[r][c]) && board[r][c] !== -1) counts[board[r][c]]++;
+  return counts.indexOf(Math.max(...counts));
+}
+
 // ─── Power-up Activation ─────────────────────────────────────────────────────
 async function activatePowerup(type, r, c) {
   let cells = [];
@@ -662,9 +682,16 @@ async function activatePowerup(type, r, c) {
   } else if (type === PU_LIGHTNING) {
     sfxLightning();
     for (let cc = 0; cc < GRID; cc++) cells.push({r, c: cc});
-  } else {
+  } else if (type === PU_ROCKET) {
     sfxRocket();
     for (let rr = 0; rr < GRID; rr++) cells.push({r: rr, c});
+  } else {
+    // PU_DIAMOND: wipe every tile of the most common type on the board
+    sfxDiamond();
+    const target = mostCommonTile();
+    for (let rr = 0; rr < GRID; rr++)
+      for (let cc = 0; cc < GRID; cc++)
+        if (board[rr][cc] === target) cells.push({r: rr, c: cc});
   }
 
   cells.forEach(({r:cr, c:cc}) => {
