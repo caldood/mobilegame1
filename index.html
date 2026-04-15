@@ -743,8 +743,132 @@ async function processMatches(cells) {
   if (next.length) await processMatches(next);
 }
 
+// ─── Power-up Combo Activation ────────────────────────────────────────────────
+async function activatePowerupCombo(t1, t2, r1, c1, r2, c2) {
+  // Normalize: ta <= tb so every pair has one canonical case
+  const [ta, ra, ca, tb, rb, cb] = t1 <= t2
+    ? [t1, r1, c1, t2, r2, c2]
+    : [t2, r2, c2, t1, r1, c1];
+
+  // Clear the two power-up slots immediately
+  board[r1][c1] = -1; board[r2][c2] = -1;
+
+  const hit = new Set();
+  const add = (r, c) => { if (r >= 0 && r < GRID && c >= 0 && c < GRID) hit.add(`${r},${c}`); };
+  // Always include both power-up positions in the blast
+  add(r1, c1); add(r2, c2);
+
+  let label = '⚡ COMBO!';
+
+  if (ta === PU_BOMB && tb === PU_BOMB) {
+    label = '💥 MEGA CRASH';
+    for (let dr = -2; dr <= 2; dr++)
+      for (let dc = -2; dc <= 2; dc++) add(ra+dr, ca+dc);
+
+  } else if (ta === PU_LIGHTNING && tb === PU_LIGHTNING) {
+    label = '⛈ THUNDERSTORM';
+    for (let rr = Math.max(0,ra-1); rr <= Math.min(GRID-1,ra+1); rr++)
+      for (let cc = 0; cc < GRID; cc++) add(rr, cc);
+
+  } else if (ta === PU_ROCKET && tb === PU_ROCKET) {
+    label = '🌙 MOONSHOT';
+    for (let cc = Math.max(0,ca-1); cc <= Math.min(GRID-1,ca+1); cc++)
+      for (let rr = 0; rr < GRID; rr++) add(rr, cc);
+
+  } else if (ta === PU_DIAMOND && tb === PU_DIAMOND) {
+    label = '💎 TOTAL SQUEEZE';
+    for (let rr = 0; rr < GRID; rr++)
+      for (let cc = 0; cc < GRID; cc++) add(rr, cc);
+
+  } else if (ta === PU_BOMB && tb === PU_LIGHTNING) {
+    label = '📊 FLASH CRASH';
+    // Cross through bomb: full row + full col
+    for (let cc = 0; cc < GRID; cc++) add(ra, cc);
+    for (let rr = 0; rr < GRID; rr++) add(rr, ca);
+
+  } else if (ta === PU_BOMB && tb === PU_ROCKET) {
+    label = '🔌 CIRCUIT BREAKER';
+    // Double cross: row+col through each tile position
+    for (let cc = 0; cc < GRID; cc++) { add(ra, cc); add(rb, cc); }
+    for (let rr = 0; rr < GRID; rr++) { add(rr, ca); add(rr, cb); }
+
+  } else if (ta === PU_BOMB && tb === PU_DIAMOND) {
+    label = '🏭 SECTOR WIPE';
+    // 3×3 + all tiles of most common type
+    for (let dr = -1; dr <= 1; dr++)
+      for (let dc = -1; dc <= 1; dc++) add(ra+dr, ca+dc);
+    const target = mostCommonTile();
+    for (let rr = 0; rr < GRID; rr++)
+      for (let cc = 0; cc < GRID; cc++)
+        if (board[rr][cc] === target) add(rr, cc);
+
+  } else if (ta === PU_LIGHTNING && tb === PU_ROCKET) {
+    label = '🎰 MARKET CRASH';
+    // Checkerboard
+    for (let rr = 0; rr < GRID; rr++)
+      for (let cc = 0; cc < GRID; cc++)
+        if ((rr + cc) % 2 === 0) add(rr, cc);
+
+  } else if (ta === PU_LIGHTNING && tb === PU_DIAMOND) {
+    label = '🐻 BEAR SQUEEZE';
+    // Full row + all tiles of top-2 most common types
+    for (let cc = 0; cc < GRID; cc++) add(ra, cc);
+    top2Types().forEach(type => {
+      for (let rr = 0; rr < GRID; rr++)
+        for (let cc = 0; cc < GRID; cc++)
+          if (board[rr][cc] === type) add(rr, cc);
+    });
+
+  } else { // PU_ROCKET + PU_DIAMOND
+    label = '🚀 SHORT RALLY';
+    // Full col + all tiles of top-2 most common types
+    for (let rr = 0; rr < GRID; rr++) add(rr, ca);
+    top2Types().forEach(type => {
+      for (let rr = 0; rr < GRID; rr++)
+        for (let cc = 0; cc < GRID; cc++)
+          if (board[rr][cc] === type) add(rr, cc);
+    });
+  }
+
+  // Play both source sounds layered
+  const types = new Set([ta, tb]);
+  if (types.has(PU_BOMB))      sfxBomb();
+  if (types.has(PU_LIGHTNING)) sfxLightning();
+  if (types.has(PU_ROCKET))    sfxRocket();
+  if (types.has(PU_DIAMOND))   sfxDiamond();
+
+  const cells = [...hit].map(s => { const [r,c]=s.split(','); return {r:+r,c:+c}; });
+  cells.forEach(({r,c}) => {
+    getTileEl(r,c)?.classList.add('blasted');
+    board[r][c] = -1;
+  });
+
+  const pts = cells.length * 400 * Math.max(1, combo);
+  score += pts;
+  updateStats();
+  showPopup(cells, pts, 0, true, label + ` +$${formatMoney(pts)}`);
+  await delay(500);
+
+  applyGravity();
+  const newCells = refillBoard();
+  buildGrid();
+  newCells.forEach(({r,c}) => getTileEl(r,c)?.classList.add('falling'));
+  await delay(360);
+  const next = findMatches();
+  if (next.length) { combo++; await processMatches(next); }
+}
+
+// Returns the two most common normal tile types on the board
+function top2Types() {
+  const counts = Array(5).fill(0);
+  for (let r = 0; r < GRID; r++)
+    for (let c = 0; c < GRID; c++)
+      if (!isPowerup(board[r][c]) && board[r][c] !== -1) counts[board[r][c]]++;
+  return counts.map((n,i) => [n,i]).sort((a,b) => b[0]-a[0]).slice(0,2).map(x => x[1]);
+}
+
 // ─── Score Popups ─────────────────────────────────────────────────────────────
-function showPopup(cells, pts, mul, isBlast) {
+function showPopup(cells, pts, mul, isBlast, label = null) {
   const step = getTileStep();
   const ts   = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--tile-size'));
   const cx   = cells.reduce((s,m) => s + m.c, 0) / cells.length;
@@ -754,9 +878,10 @@ function showPopup(cells, pts, mul, isBlast) {
   el.className = 'score-popup' + (isBlast ? ' blast' : mul >= 3 ? ' big' : '');
   el.style.left = (cx * step + ts / 2) + 'px';
   el.style.top  = (cy * step) + 'px';
-  el.textContent = isBlast          ? `💥 +$${formatMoney(pts)}`
-                 : mul >= 4         ? `+$${formatMoney(pts)} x${mul}🔥`
-                 : mul >= 2         ? `+$${formatMoney(pts)} COMBO!`
+  el.textContent = label            ? label
+                 : isBlast         ? `💥 +$${formatMoney(pts)}`
+                 : mul >= 4        ? `+$${formatMoney(pts)} x${mul}🔥`
+                 : mul >= 2        ? `+$${formatMoney(pts)} COMBO!`
                  :                    `+$${formatMoney(pts)}`;
   popupsEl.appendChild(el);
   el.addEventListener('animationend', () => el.remove());
@@ -895,7 +1020,17 @@ async function attemptSwap(r1, c1, r2, c2) {
   swapData(r1, c1, r2, c2);
   refreshTile(r1, c1); refreshTile(r2, c2);
 
-  // Power-up: activate at its post-swap position
+  // Both power-ups → special combo effect
+  if (isPowerup(t1) && isPowerup(t2)) {
+    movesLeft--; combo = 0; updateStats();
+    await activatePowerupCombo(t1, t2, r1, c1, r2, c2);
+    busy = false;
+    scheduleHint();
+    if (movesLeft <= 0) { await delay(400); endGame(); }
+    return;
+  }
+
+  // Single power-up: activate at its post-swap position
   if (isPowerup(t1) || isPowerup(t2)) {
     const [pType, pR, pC] = isPowerup(t1) ? [t1, r2, c2] : [t2, r1, c1];
     movesLeft--; combo = 0; updateStats();
